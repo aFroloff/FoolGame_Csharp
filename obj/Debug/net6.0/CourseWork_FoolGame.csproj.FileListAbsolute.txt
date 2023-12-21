@@ -13,3 +13,17 @@ C:\Users\DNS\Desktop\LETI_programming\2_year\OOP\CourseWork_FoolGame\obj\Debug\n
 C:\Users\DNS\Desktop\LETI_programming\2_year\OOP\CourseWork_FoolGame\obj\Debug\net6.0\CourseWork_FoolGame.pdb
 C:\Users\DNS\Desktop\LETI_programming\2_year\OOP\CourseWork_FoolGame\obj\Debug\net6.0\CourseWork_FoolGame.genruntimeconfig.cache
 C:\Users\DNS\Desktop\LETI_programming\2_year\OOP\CourseWork_FoolGame\obj\Debug\net6.0\ref\CourseWork_FoolGame.dll
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\bin\Debug\net6.0\CourseWork_FoolGame.exe
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\bin\Debug\net6.0\CourseWork_FoolGame.deps.json
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\bin\Debug\net6.0\CourseWork_FoolGame.runtimeconfig.json
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\bin\Debug\net6.0\CourseWork_FoolGame.dll
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\bin\Debug\net6.0\CourseWork_FoolGame.pdb
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\CourseWork_FoolGame.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\CourseWork_FoolGame.AssemblyInfoInputs.cache
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\CourseWork_FoolGame.AssemblyInfo.cs
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\CourseWork_FoolGame.csproj.CoreCompileInputs.cache
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\CourseWork_FoolGame.dll
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\refint\CourseWork_FoolGame.dll
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\CourseWork_FoolGame.pdb
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\CourseWork_FoolGame.genruntimeconfig.cache
+C:\Users\cold1\Source\Repos\FoolGame_Csharp\obj\Debug\net6.0\ref\CourseWork_FoolGame.dll

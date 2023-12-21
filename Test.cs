@@ -8,7 +8,7 @@ namespace MyProgram
         {
             FoolGame.StartGame();
             FoolGame.DisplayPackCards();
-
+            
             Console.WriteLine("END");
         }
     }

@@ -1,4 +1,6 @@
 
+
+
 namespace Games
 {
     public class FoolGame
@@ -25,12 +27,14 @@ namespace Games
         }
 
         private static  List<Card> packCards = new List<Card>(36); // карты в колоде
-        private static List<Card> playerCards = new List<Card>(6);
-        private static List<Card> computerCards = new List<Card>(6);
+        //private static List<Card> playerCards = new List<Card>(6);
+        //private static List<Card> computerCards = new List<Card>(6);
         private static CardSuit royalSuit; // козырная масть
 
         public static void StartGame()
         {
+            Computer computer = new Computer("YourPC");
+            Human player = new Human("You");
             // Inicialize cards
             for (int i = 0; i < 36; i++)
             {
@@ -39,18 +43,18 @@ namespace Games
 
             // Give a cards for a player
             Random random = new Random();
-            while (playerCards.Count() < 6)
+            while (player.playerCards.Count() < 6)
             {
                 Card randomCard = packCards[random.Next(0, packCards.Count)];
-                playerCards.Add(randomCard);
+                player.playerCards.Add(randomCard);
                 packCards.Remove(randomCard);
             }
 
             // Give a cards for a computer
-            while (computerCards.Count < 6)
+            while (computer.playerCards.Count < 6)
             {
                 Card randomCard = packCards[random.Next(0, packCards.Count)];
-                computerCards.Add(randomCard);
+                computer.playerCards.Add(randomCard);
                 packCards.Remove(randomCard);
             }
 
@@ -60,7 +64,15 @@ namespace Games
             if (randomValue == 1) royalSuit = CardSuit.Clubs;
             if (randomValue == 2) royalSuit = CardSuit.Hearts;
             if (randomValue == 3) royalSuit = CardSuit.Diamonds;
+
+            //setting first player
+            if (player.MinRoyalCard() > computer.MinRoyalCard()) { computer.PlayerOrder = 0; player.PlayerOrder = 1; }
+            else {  computer.PlayerOrder = 1; player.PlayerOrder = 0; }
+
+
         }
+
+        
 
         public static void DisplayPackCards()
         {
@@ -68,6 +80,60 @@ namespace Games
             {
                 Console.WriteLine("Suit: " + packCards[i].Suit + "; Power: " + packCards[i].Power);
             }
+
         }
+
+        public class Player
+        {
+            public string Name { get; private set; }
+
+            public List<Card> playerCards = new List<Card>(6);
+
+            public int PlayerOrder { get; set; }
+
+            public Player(string name)
+            {
+                Name = name;
+            }
+
+            public int MinRoyalCard()
+            {
+                int min = 15;
+                foreach (Card card in playerCards)
+                {
+                    if(card.Suit == royalSuit && card.Power > min)
+                    {
+                        min = card.Power;
+                    }
+                }
+                return min;
+            }
+
+        }
+
+        public class Human : Player
+        {
+
+            public void DisplayCards()
+            {
+                foreach (Card card in playerCards)
+                {
+                    Console.WriteLine(card.Suit + " " + card.Power);
+                }
+            }
+
+            public Human(string name) : base(name)
+            {
+            }
+        }
+
+        public class Computer : Player
+        {
+
+            public Computer(string name) : base(name)
+            {
+            }
+        }
+
     }
 }
