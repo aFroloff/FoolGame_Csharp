@@ -28,7 +28,7 @@
 */
 
 
-using static Games.FoolGame;
+//TODO: добавить защиту для компа, цикл для игры, раздачу карт игрокам в цикле, логи в файл
 
 namespace Games
 {
@@ -96,20 +96,26 @@ namespace Games
             //setting first player
             if (player.MinRoyalCard() > computer.MinRoyalCard()) { computer.PlayerOrder = 0; player.PlayerOrder = 1; }
             else {  computer.PlayerOrder = 1; player.PlayerOrder = 0; }
-
+            Console.WriteLine(royalSuit.ToString());
             Attack(computer, player);
-            //ShowCardsOnTable();
+            ShowCardsOnTable();
+            Defence(computer, player);
+            ShowCardsOnTable();
+            player.DisplayCards();
         }
-
+        //карты, которые необходимо отбить
         private static void ShowCardsOnTable()
         {
+            Console.WriteLine("Карты на столе: ");
+            int i = 0;
             foreach (Card card in cardsOnTable)
             {
-                Console.WriteLine("Suit: " + card.Suit + "; Power: " + card.Power);
+                i++;
+                Console.WriteLine(i + ". Suit: " + card.Suit + "; Power: " + card.Power);
             }
         }
         //атака, ход делает первый аргумент ф-ии, защищаться будет второй
-        private static void Attack(Player attacker, Player p2)
+        private static void Attack(Player attacker, Player defender)
         {
             if (attacker is Human)
             {
@@ -146,23 +152,111 @@ namespace Games
                         break;
                     //компьютер выбрал ход несколькими картами одного ранга, если это возможно
                     case 1:
-                        //выбираем самые младшие парные карты
+                        //выбираем самые младшие парные карты 
                         int min = 15;
                         for (int i = 6; i < 14; i++)
                         {
                             if (attacker.playerCards.Where(c => c.Power == i).Count() > 1 && min > i) min = i;
                         }
                         if (min == 15) goto case 0; //парных карт нет
-                        cardsOnTable.AddRange(attacker.playerCards.Where(c => c.Power == min));
-                        attacker.playerCards.RemoveAll(c => c.Power == min);
+                        //cardsOnTable.AddRange(attacker.playerCards.Where(c => c.Power == min));
+                        //у защищаегося должно хватать карт для обороны
+                        int num = attacker.playerCards.Where(c => c.Power == min).Count();
+                        for (int i = 0; i < num && i < defender.playerCards.Count; i++)
+                        {
+                            cardsOnTable.Add(attacker.playerCards.Where(c => c.Power == min).ToList()[0]);
+                            attacker.playerCards.Remove(attacker.playerCards.Where(c => c.Power == min).ToList()[0]);
+                        }
+                        //attacker.playerCards.RemoveAll(c => c.Power == min);
                         break;
                 }
+            }
+        }
+        
+        //оборона, второй - защищается
+        private static void Defence(Player attacker, Player defender)
+        {
+            if (defender is Human)
+            {
+                Console.WriteLine("Вы можете забрать карты (нажмите 1), либо отбить их (0).");
+                defender.DisplayCards();
+                Console.WriteLine();
+                string line = Console.ReadLine();
+                int num = int.Parse(line);
+                if (num == 1)
+                {
+                    defender.playerCards.AddRange(cardsOnTable);
+                    cardsOnTable = new List<Card>();
+                    return;
+                }
+                List<Card> cards_to_delete = new List<Card>(); //карты игрока, которыми он бил карты на столе. если игрок не сможет побить карты на столе, то они отходят к игроку
+                //проходим по каждой карте на столе и бьём её
+                foreach (Card card in cardsOnTable)
+                {
+                    defender.DisplayCards();
+                    Console.WriteLine();
+                    Console.WriteLine("Выберете карту для боя " + card.Suit + " " + card.Power + ". Если вы не можете побить её нажмите 0"); //боя? не знаю что тут писать
+                    line = Console.ReadLine();
+                    num = int.Parse(line);
+                    if (num == 0) break;
+                    if (defender.playerCards[num - 1].Power > card.Power && card.Suit != royalSuit && defender.playerCards[num - 1].Suit == card.Suit)
+                    { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём не козырной
+                    else if (defender.playerCards[num - 1].Power > card.Power && card.Suit == royalSuit && defender.playerCards[num - 1].Suit == royalSuit)
+                    { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе козырная, бьём козырной
+                    else if (defender.playerCards[num - 1].Suit == royalSuit && card.Suit != royalSuit)
+                    { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём козырной
+                    else Console.WriteLine("Карта не бита");
+                }
+                //с шансом 2 к 3 компьютер подкидывает карты
+                Random random = new Random();
+                num = random.Next(0, 3);
+                List<Card> thrown_cards = new List<Card>(); //подкинутые карты
+                if (num != 0 && attacker.playerCards.Where(c => c.Power == cardsOnTable[0].Power).Count() > 0) 
+                {
+                    num = random.Next(1, attacker.playerCards.Where(c => c.Power == cardsOnTable[0].Power).Count() + 1); //случайное количество карт для подкидывания (минимум 1) 
+                    for (int i = 0; i < num && i < defender.playerCards.Count(); i++) 
+                    {
+                        thrown_cards.Add(attacker.playerCards.Where(c => c.Power == cardsOnTable[0].Power).ToList()[i]);//подкидываем карту того же ранга, что и на столе
+                    }
+                }
+                if (thrown_cards.Count > 0)
+                {
+                    Console.WriteLine("Подкинуты карты:");
+                    int i = 0;
+                    thrown_cards.ForEach(c => { i++; Console.WriteLine(i + ". " + c.Suit + ' ' + c.Power); });
+
+                    foreach (Card card in thrown_cards)
+                    {
+                        defender.DisplayCards();
+                        Console.WriteLine();
+                        Console.WriteLine("Выберете карту для боя " + card.Suit + " " + card.Power + ". Если вы не можете побить её нажмите 0"); //боя? не знаю что тут писать
+                        line = Console.ReadLine();
+                        num = int.Parse(line);
+                        if (num == 0) break;
+                        if (defender.playerCards[num - 1].Power > card.Power && card.Suit != royalSuit && defender.playerCards[num - 1].Suit == card.Suit)
+                        { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём не козырной
+                        else if (defender.playerCards[num - 1].Power > card.Power && card.Suit == royalSuit && defender.playerCards[num - 1].Suit == royalSuit)
+                        { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе козырная, бьём козырной
+                        else if (defender.playerCards[num - 1].Suit == royalSuit && card.Suit != royalSuit)
+                        { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём козырной
+                        else Console.WriteLine("Карта не бита");
+                    }
+                }
+
+                if (cards_to_delete.Count == cardsOnTable.Count + thrown_cards.Count()) cardsOnTable.Clear();//если все карты биты, то очищаем стол
+                else //иначе, добавляем игроку все карты
+                {
+                    defender.playerCards.AddRange(cardsOnTable); 
+                    defender.playerCards.AddRange(cards_to_delete);
+                    defender.playerCards.AddRange(thrown_cards);
+                    cardsOnTable.Clear(); 
+                }
+
             }
         }
 
         public static void DisplayPackCards()
         {
-            Console.WriteLine("Карты на столе: ");
             for (int i = 0; i < packCards.Count; i++)
             {
                 Console.WriteLine("Suit: " + packCards[i].Suit + "; Power: " + packCards[i].Power);
