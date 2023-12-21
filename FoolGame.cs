@@ -27,8 +27,7 @@ namespace Games
         }
 
         private static  List<Card> packCards = new List<Card>(36); // карты в колоде
-        //private static List<Card> playerCards = new List<Card>(6);
-        //private static List<Card> computerCards = new List<Card>(6);
+        private static List<Card> cardsOnTable = new List<Card>();
         private static CardSuit royalSuit; // козырная масть
 
         public static void StartGame()
@@ -69,13 +68,61 @@ namespace Games
             if (player.MinRoyalCard() > computer.MinRoyalCard()) { computer.PlayerOrder = 0; player.PlayerOrder = 1; }
             else {  computer.PlayerOrder = 1; player.PlayerOrder = 0; }
 
-
+            Attack(player, computer);
+            ShowCardsOnTable();
         }
 
-        
+        private static void ShowCardsOnTable()
+        {
+            foreach (Card card in cardsOnTable)
+            {
+                Console.WriteLine("Suit: " + card.Suit + "; Power: " + card.Power);
+            }
+        }
+
+        private static void Attack(Player attacker, Player p2)
+        {
+            if (attacker is Human)
+            {
+                Console.WriteLine("Выберете карты для атаки:");
+                int i = 0;
+                Console.WriteLine("0. Завершить атаку.");
+                //выбираем одну или несколько карт (пользователь должен соблюдать правило при выборе нескольких карт - 
+                //они могут быть только одной масти
+                while (attacker.playerCards.Count > 0)
+                {
+                    attacker.DisplayCards();
+                    Console.WriteLine();
+                    string line = Console.ReadLine();
+                    int crd = int.Parse(line);
+                    if (crd == 0) if (i > 0) break; else Console.WriteLine("Выберете хотя бы одну карту");
+                    i++;
+                    //добавляем карты на стол и убираем их у игрока
+                    if (crd > 0) cardsOnTable.Add(attacker.playerCards[crd - 1]);
+                    if (crd > 0) attacker.playerCards.RemoveAt(crd - 1);
+                }
+            }
+            if (attacker is Computer)
+            {
+                Random random = new Random();
+                int p = random.Next(0, 2);
+                switch (p)
+                {
+                    //компьютер выбрал ход одной картой
+                    case 0:
+
+                        break;
+                    //компьютер выбрал ход несколькими картами одной масти, если это возможно
+                    case 1:
+
+                        break;
+                }
+            }
+        }
 
         public static void DisplayPackCards()
         {
+            Console.WriteLine("Карты на столе: ");
             for (int i = 0; i < packCards.Count; i++)
             {
                 Console.WriteLine("Suit: " + packCards[i].Suit + "; Power: " + packCards[i].Power);
@@ -83,9 +130,11 @@ namespace Games
 
         }
 
-        public class Player
+        public abstract class Player
         {
             public string Name { get; private set; }
+
+            public abstract void DisplayCards();
 
             public List<Card> playerCards = new List<Card>(6);
 
@@ -114,11 +163,13 @@ namespace Games
         public class Human : Player
         {
 
-            public void DisplayCards()
+            public override void DisplayCards()
             {
+                int i = 0;
                 foreach (Card card in playerCards)
                 {
-                    Console.WriteLine(card.Suit + " " + card.Power);
+                    i++;
+                    Console.Write(i + ". " + card.Suit + " " + card.Power + "   ");
                 }
             }
 
@@ -129,6 +180,7 @@ namespace Games
 
         public class Computer : Player
         {
+            public override void DisplayCards() { }
 
             public Computer(string name) : base(name)
             {
