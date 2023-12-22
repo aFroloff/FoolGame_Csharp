@@ -55,7 +55,7 @@ namespace Games
             }
         }
 
-        private static  List<Card> packCards = new List<Card>(36); // карты в колоде
+        private static List<Card> packCards = new List<Card>(36); // карты в колоде
         private static List<Card> cardsOnTable = new List<Card>();
         private static CardSuit royalSuit; // козырная масть
 
@@ -95,13 +95,28 @@ namespace Games
 
             //setting first player
             if (player.MinRoyalCard() > computer.MinRoyalCard()) { computer.PlayerOrder = 0; player.PlayerOrder = 1; }
-            else {  computer.PlayerOrder = 1; player.PlayerOrder = 0; }
-            Console.WriteLine(royalSuit.ToString());
-            Attack(computer, player);
-            ShowCardsOnTable();
-            Defence(computer, player);
-            ShowCardsOnTable();
-            player.DisplayCards();
+            else { computer.PlayerOrder = 1; player.PlayerOrder = 0; }
+            //Console.WriteLine(royalSuit.ToString());
+            //Attack(computer, player);
+            //ShowCardsOnTable();
+            //Defence(computer, player);
+            //ShowCardsOnTable();
+            //player.DisplayCards();
+            Console.WriteLine("Козырная масть: " + royalSuit.ToString());
+            while (true)
+            {
+                if (computer.PlayerOrder == 0)
+                {
+                    Console.WriteLine("Атакует " + computer.Name + '!');
+                    Attack(computer, player);
+                    ShowCardsOnTable();
+                    Defence(computer, player);
+                    Console.WriteLine("Ваши карты: ");
+                    player.DisplayCards();
+                    Console.WriteLine();
+                }
+            }
+
         }
         //карты, которые необходимо отбить
         private static void ShowCardsOnTable()
@@ -124,7 +139,8 @@ namespace Games
                 Console.WriteLine("0. Завершить ход.");
                 //выбираем одну или несколько карт (пользователь должен соблюдать правило при выборе нескольких карт - 
                 //они могут быть только одного ранга
-                while (attacker.playerCards.Count > 0)
+                Console.WriteLine("У противника " + defender.playerCards.Count() + " карт");
+                while (attacker.playerCards.Count > 0 && cardsOnTable.Count != defender.playerCards.Count())
                 {
                     attacker.DisplayCards();
                     Console.WriteLine();
@@ -159,7 +175,6 @@ namespace Games
                             if (attacker.playerCards.Where(c => c.Power == i).Count() > 1 && min > i) min = i;
                         }
                         if (min == 15) goto case 0; //парных карт нет
-                        //cardsOnTable.AddRange(attacker.playerCards.Where(c => c.Power == min));
                         //у защищаегося должно хватать карт для обороны
                         int num = attacker.playerCards.Where(c => c.Power == min).Count();
                         for (int i = 0; i < num && i < defender.playerCards.Count; i++)
@@ -167,12 +182,11 @@ namespace Games
                             cardsOnTable.Add(attacker.playerCards.Where(c => c.Power == min).ToList()[0]);
                             attacker.playerCards.Remove(attacker.playerCards.Where(c => c.Power == min).ToList()[0]);
                         }
-                        //attacker.playerCards.RemoveAll(c => c.Power == min);
                         break;
                 }
             }
         }
-        
+
         //оборона, второй - защищается
         private static void Defence(Player attacker, Player defender)
         {
@@ -195,28 +209,38 @@ namespace Games
                 {
                     defender.DisplayCards();
                     Console.WriteLine();
-                    Console.WriteLine("Выберете карту для боя " + card.Suit + " " + card.Power + ". Если вы не можете побить её нажмите 0"); //боя? не знаю что тут писать
+                    Console.WriteLine("Выберете карту сильнее, чем " + card.Suit + " " + card.Power + ". Если вы не можете побить её нажмите 0");
                     line = Console.ReadLine();
                     num = int.Parse(line);
                     if (num == 0) break;
                     if (defender.playerCards[num - 1].Power > card.Power && card.Suit != royalSuit && defender.playerCards[num - 1].Suit == card.Suit)
-                    { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём не козырной
+                    { cards_to_delete.Add(defender.playerCards[num - 1]); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём не козырной
                     else if (defender.playerCards[num - 1].Power > card.Power && card.Suit == royalSuit && defender.playerCards[num - 1].Suit == royalSuit)
-                    { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе козырная, бьём козырной
+                    { cards_to_delete.Add(defender.playerCards[num - 1]); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе козырная, бьём козырной
                     else if (defender.playerCards[num - 1].Suit == royalSuit && card.Suit != royalSuit)
-                    { cards_to_delete.Add(card); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём козырной
-                    else Console.WriteLine("Карта не бита");
+                    { cards_to_delete.Add(defender.playerCards[num - 1]); Console.WriteLine("Карта бита"); defender.playerCards.RemoveAt(num - 1); }//карта на столе не козырная, бьём козырной
+                    else
+                    {
+                        Console.WriteLine("Карта не бита");
+                    }
                 }
                 //с шансом 2 к 3 компьютер подкидывает карты
                 Random random = new Random();
                 num = random.Next(0, 3);
                 List<Card> thrown_cards = new List<Card>(); //подкинутые карты
-                if (num != 0 && attacker.playerCards.Where(c => c.Power == cardsOnTable[0].Power).Count() > 0) 
+                if (num != 0 && attacker.playerCards
+                    .Where(c => c.Power == cardsOnTable[0].Power || cards_to_delete.ConvertAll(c => c.Power).Contains(c.Power)).Count() > 0)
+                //подбрасывать можно все карты того же ранга, которые участвуют в данном заходе: как те, которыми атакуют, так и те, которыми отбиваются;
                 {
-                    num = random.Next(1, attacker.playerCards.Where(c => c.Power == cardsOnTable[0].Power).Count() + 1); //случайное количество карт для подкидывания (минимум 1) 
-                    for (int i = 0; i < num && i < defender.playerCards.Count(); i++) 
+                    num = random.Next(1, attacker.playerCards
+                        .Where(c => c.Power == cardsOnTable[0].Power || cards_to_delete.ConvertAll(c => c.Power).Contains(c.Power)).Count() + 1);
+                    //случайное количество карт для подкидывания (минимум 1)
+                    if (num > 5) num = 5; //подкидывать можно максимум 5 карт
+                    for (int i = 0; i < num && i < defender.playerCards.Count(); i++)
                     {
-                        thrown_cards.Add(attacker.playerCards.Where(c => c.Power == cardsOnTable[0].Power).ToList()[i]);//подкидываем карту того же ранга, что и на столе
+                        thrown_cards.Add(attacker.playerCards
+                            .Where(c => c.Power == cardsOnTable[0].Power || cards_to_delete.ConvertAll(c => c.Power).Contains(c.Power)).ToList()[i]);
+                        //подкидываем карту
                     }
                 }
                 if (thrown_cards.Count > 0)
@@ -229,7 +253,7 @@ namespace Games
                     {
                         defender.DisplayCards();
                         Console.WriteLine();
-                        Console.WriteLine("Выберете карту для боя " + card.Suit + " " + card.Power + ". Если вы не можете побить её нажмите 0"); //боя? не знаю что тут писать
+                        Console.WriteLine("Выберете карту сильнее, чем " + card.Suit + " " + card.Power + ". Если вы не можете побить её нажмите 0");
                         line = Console.ReadLine();
                         num = int.Parse(line);
                         if (num == 0) break;
@@ -246,10 +270,110 @@ namespace Games
                 if (cards_to_delete.Count == cardsOnTable.Count + thrown_cards.Count()) cardsOnTable.Clear();//если все карты биты, то очищаем стол
                 else //иначе, добавляем игроку все карты
                 {
-                    defender.playerCards.AddRange(cardsOnTable); 
+                    defender.playerCards.AddRange(cardsOnTable);
                     defender.playerCards.AddRange(cards_to_delete);
                     defender.playerCards.AddRange(thrown_cards);
-                    cardsOnTable.Clear(); 
+                    cardsOnTable.Clear();
+                }
+
+            }
+
+            if (defender is Computer)
+            {
+                Random random = new Random();
+                int num = random.Next(0, 3);
+                //с вероятностью 1 к 3 компьютер заберет козырные карты себе
+                if (num == 0 && cardsOnTable.Where(c => c.Suit == royalSuit).Count() > 0)
+                {
+                    defender.playerCards.AddRange(cardsOnTable);
+                    cardsOnTable.Clear();
+                    return;
+                }
+                List<Card> cards_to_delete = new List<Card>(); //карты к., которыми он бил карты на столе. если к. не сможет побить карты на столе, то они отходят к к.
+                //проходим по каждой карте на столе и бьём её
+                foreach (Card card in cardsOnTable)
+                {
+                    Card c_card; //выбираем карту, которой будем бить
+                    if (defender.playerCards.Where(c => c.Suit == card.Suit && c.Power > card.Power).Count() > 0)
+                    {//карты одинаковой масти, карта большего ранга, чем на столе - выбираем минимальную подходящую
+                        c_card = defender.playerCards.Where(c => c.Suit == card.Suit && c.Power > card.Power).OrderBy(c => c.Power).ToList()[0];
+                        Console.WriteLine("Карта бита. Использована карта " + c_card.Suit + ' ' + c_card.Power);
+                        defender.playerCards.Remove(c_card);
+                        cards_to_delete.Add(c_card);
+                    }
+                    else if (defender.playerCards.Where(c => c.Suit == royalSuit && card.Suit != royalSuit).Count() > 0)
+                    {//бьём минимальным козырем карту другой масти
+                        c_card = defender.playerCards.Where(c => c.Suit == royalSuit && card.Suit != royalSuit).OrderBy(c => c.Power).ToList()[0];
+                        Console.WriteLine("Карта бита. Использована карта " + c_card.Suit + ' ' + c_card.Power);
+                        defender.playerCards.Remove(c_card);
+                        cards_to_delete.Add(c_card);
+                    }
+                    else Console.WriteLine("Карта не бита");
+                }
+
+                List<Card> thrown_cards = new List<Card>(); //подкинутые карты
+                Console.WriteLine("1. Подбросить карты\n2. Не подкидывать");
+                string line = Console.ReadLine();
+                num = int.Parse(line);
+                if (num != 2 && attacker.playerCards
+                    .Where(c => c.Power == cardsOnTable[0].Power || cards_to_delete.ConvertAll(c => c.Power).Contains(c.Power)).Count() > 0)
+                //подбрасывать можно все карты того же ранга, которые участвуют в данном заходе: как те, которыми атакуют, так и те, которыми отбиваются;
+                {
+                    num = 1;
+                    for (int i = 0; i < 5 && i < defender.playerCards.Count(); i++)
+                    {
+                        int j = 0;
+                        Console.WriteLine("Подбросить можно одну из: ");
+                        attacker.playerCards
+                            .Where(c => c.Power == cardsOnTable[0].Power || cards_to_delete.ConvertAll(c => c.Power)
+                            .Contains(c.Power))
+                            .ToList()
+                            .ForEach(c => { j++; Console.Write(j + ". " + c.Suit + ' ' + c.Power + ' '); });
+                        Console.WriteLine("\nЕсли вы не хотите подбрасывать карту, нажмите 0");
+                        line = Console.ReadLine();
+                        num = int.Parse(line);
+                        if (num == 0) break;
+                        thrown_cards.Add(attacker.playerCards
+                            .Where(c => c.Power == cardsOnTable[0].Power || cards_to_delete.ConvertAll(c => c.Power)
+                            .Contains(c.Power))
+                            .ToList()[num - 1]);
+
+                        //подкидываем карту
+                    }
+                }
+                if (thrown_cards.Count > 0)
+                {
+                    Console.WriteLine("Подкинуты карты:");
+                    int i = 0;
+                    thrown_cards.ForEach(c => { i++; Console.WriteLine(i + ". " + c.Suit + ' ' + c.Power); });
+                    foreach (Card card in thrown_cards)
+                    {
+                        Card c_card; //выбираем карту, которой будем бить
+                        if (defender.playerCards.Where(c => c.Suit == card.Suit && c.Power > card.Power).Count() > 0)
+                        {//карты одинаковой масти, карта большего ранга, чем на столе - выбираем минимальную подходящую
+                            c_card = defender.playerCards.Where(c => c.Suit == card.Suit && c.Power > card.Power).OrderBy(c => c.Power).ToList()[0];
+                            Console.WriteLine("Карта " + card.Suit + ' ' + card.Power + "бита. Использована карта " + c_card.Suit + ' ' + c_card.Power);
+                            defender.playerCards.Remove(c_card);
+                            cards_to_delete.Add(c_card);
+                        }
+                        else if (defender.playerCards.Where(c => c.Suit == royalSuit && card.Suit != royalSuit).Count() > 0)
+                        {//бьём минимальным козырем карту другой масти
+                            c_card = defender.playerCards.Where(c => c.Suit == royalSuit && card.Suit != royalSuit).OrderBy(c => c.Power).ToList()[0];
+                            Console.WriteLine("Карта " + card.Suit + ' ' + card.Power + "бита. Использована карта " + c_card.Suit + ' ' + c_card.Power);
+                            defender.playerCards.Remove(c_card);
+                            cards_to_delete.Add(c_card);
+                        }
+                        else Console.WriteLine("Карта " + card.Suit + ' ' + card.Power + "не бита");
+                    }
+                    if (cards_to_delete.Count == cardsOnTable.Count + thrown_cards.Count()) cardsOnTable.Clear();//если все карты биты, то очищаем стол
+                    else //иначе, добавляем игроку все карты
+                    {
+                        defender.playerCards.AddRange(cardsOnTable);
+                        defender.playerCards.AddRange(cards_to_delete);
+                        defender.playerCards.AddRange(thrown_cards);
+                        cardsOnTable.Clear();
+                    }
+
                 }
 
             }
@@ -285,7 +409,7 @@ namespace Games
                 int min = 15;
                 foreach (Card card in playerCards)
                 {
-                    if(card.Suit == royalSuit && card.Power < min)
+                    if (card.Suit == royalSuit && card.Power < min)
                     {
                         min = card.Power;
                     }
@@ -315,7 +439,7 @@ namespace Games
 
         public class Computer : Player
         {
-            public override void DisplayCards() 
+            public override void DisplayCards()
             {
                 playerCards.ForEach(c => Console.WriteLine(c.Suit + " " + c.Power));
             }
