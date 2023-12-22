@@ -28,7 +28,7 @@
 */
 
 
-//TODO: добавить защиту для компа, цикл для игры, раздачу карт игрокам в цикле, логи в файл
+//TODO: логи в файл
 
 namespace Games
 {
@@ -96,12 +96,6 @@ namespace Games
             //setting first player
             if (player.MinRoyalCard() > computer.MinRoyalCard()) { computer.PlayerOrder = 0; player.PlayerOrder = 1; }
             else { computer.PlayerOrder = 1; player.PlayerOrder = 0; }
-            //Console.WriteLine(royalSuit.ToString());
-            //Attack(computer, player);
-            //ShowCardsOnTable();
-            //Defence(computer, player);
-            //ShowCardsOnTable();
-            //player.DisplayCards();
             Console.WriteLine("Козырная масть: " + royalSuit.ToString());
             while (true)
             {
@@ -114,6 +108,116 @@ namespace Games
                     Console.WriteLine("Ваши карты: ");
                     player.DisplayCards();
                     Console.WriteLine();
+                    while (true)
+                    {
+                        //добавляем карты компьютеру
+                        if (packCards.Count() > 0 && computer.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            computer.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        //игроку
+                        if (packCards.Count() > 0 && player.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            player.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        if (packCards.Count() == 0) break;
+                        if (computer.playerCards.Count() >= 6 || player.playerCards.Count() >= 6) break;
+                    }
+                    if (computer.playerCards.Count() == 0) { Console.WriteLine(computer.Name + " выиграл!"); return; }
+                    if (player.playerCards.Count() == 0) { Console.WriteLine(player.Name + " выиграл!"); return; }
+                    Console.WriteLine("Атакует " + player.Name + '!');
+                    Console.WriteLine("Если вы атакуете несколькими картами, то выбирайте только карты одного ранга!");
+                    Attack(player, computer);
+                    ShowCardsOnTable();
+                    Defence(player, computer);
+                    Console.WriteLine("Ваши карты: ");
+                    player.DisplayCards();
+                    Console.WriteLine();
+                    while (true)
+                    {
+                        //игроку
+                        if (packCards.Count() > 0 && player.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            player.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        //добавляем карты компьютеру
+                        if (packCards.Count() > 0 && computer.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            computer.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        if (packCards.Count() == 0) break;
+                        if (computer.playerCards.Count() >= 6 || player.playerCards.Count() >= 6) break;
+                    }
+                    if (player.playerCards.Count() == 0) { Console.WriteLine(player.Name + " выиграл!"); return; }
+                    if (computer.playerCards.Count() == 0) { Console.WriteLine(computer.Name + " выиграл!"); return; }
+                }
+                if (player.PlayerOrder == 0)
+                {
+                    Console.WriteLine("Атакует " + player.Name + '!');
+                    Console.WriteLine("Если вы атакуете несколькими картами, то выбирайте только карты одного ранга!");
+                    Attack(player, computer);
+                    ShowCardsOnTable();
+                    Defence(player, computer);
+                    Console.WriteLine("Ваши карты: ");
+                    player.DisplayCards();
+                    Console.WriteLine();
+                    while (true)
+                    {
+                        //игроку
+                        if (packCards.Count() > 0 && player.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            player.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        //добавляем карты компьютеру
+                        if (packCards.Count() > 0 && computer.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            computer.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        if (packCards.Count() == 0) break;
+                        if (computer.playerCards.Count() >= 6 || player.playerCards.Count() >= 6) break;
+                    }
+                    if (player.playerCards.Count() == 0) { Console.WriteLine(player.Name + " выиграл!"); return; }
+                    if (computer.playerCards.Count() == 0) { Console.WriteLine(computer.Name + " выиграл!"); return; }
+                    Console.WriteLine("Атакует " + computer.Name + '!');
+                    Attack(computer, player);
+                    ShowCardsOnTable();
+                    Defence(computer, player);
+                    Console.WriteLine("Ваши карты: ");
+                    player.DisplayCards();
+                    Console.WriteLine();
+                    while (true)
+                    {
+                        //добавляем карты компьютеру
+                        if (packCards.Count() > 0 && computer.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            computer.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        //игроку
+                        if (packCards.Count() > 0 && player.playerCards.Count() < 6)
+                        {
+                            Card randomCard = packCards[random.Next(0, packCards.Count)];
+                            player.playerCards.Add(randomCard);
+                            packCards.Remove(randomCard);
+                        }
+                        if (packCards.Count() == 0) break;
+                        if (computer.playerCards.Count() >= 6 || player.playerCards.Count() >= 6) break;
+                    }
+                    if (computer.playerCards.Count() == 0) { Console.WriteLine(computer.Name + " выиграл!"); return; }
+                    if (player.playerCards.Count() == 0) { Console.WriteLine(player.Name + " выиграл!"); return; }
                 }
             }
 

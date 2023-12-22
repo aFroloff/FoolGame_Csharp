@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CourseWork_FoolGame")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6a8e71ba8d980a474f18298a19c49ccaace018f")]
 [assembly: System.Reflection.AssemblyProductAttribute("CourseWork_FoolGame")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CourseWork_FoolGame")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
